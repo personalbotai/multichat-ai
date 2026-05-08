@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MultiChat AI - WebLLM esm.sh</title>
+    <title>MultiChat AI - WebLLM Fixed</title>
     <script src="https://js.puter.com/v2/"></script>
     <script type="module">
-        import * as webllm from "https://esm.sh/@mlc-ai/web-llm@0.2.55";
+        // Format ESM resmi dari jsdelivr (dengan +esm suffix)
+        import * as webllm from 'https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm/+esm';
         window.webllm = webllm;
-        console.log("✅ WebLLM loaded from esm.sh");
+        console.log("✅ WebLLM loaded from jsdelivr (ESM format)");
     </script>
     <style>
         * { margin:0; padding:0; box-sizing: border-box; }
@@ -268,11 +269,6 @@
             transition: width 0.3s;
         }
         
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
-        
         .info-box {
             background: rgba(0, 212, 255, 0.1);
             border: 1px solid rgba(0, 212, 255, 0.3);
@@ -284,6 +280,11 @@
             line-height: 1.5;
         }
         
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+        
         @media (max-width: 768px) { .sidebar { display: none; } }
     </style>
 </head>
@@ -293,7 +294,7 @@
         <div class="sidebar">
             <div class="sidebar-header">
                 <h1>🚀 MultiChat AI</h1>
-                <p>Puter.js + WebLLM (esm.sh)</p>
+                <p>Puter.js + WebLLM (Fixed)</p>
             </div>
             
             <input type="text" class="search-box" placeholder="Search models..." id="searchBox">
@@ -328,12 +329,12 @@
                 </div>
             </div>
             
-            <!-- WebLLM Models (esm.sh) -->
+            <!-- WebLLM Models (Fixed ESM) -->
             <div class="model-section">
-                <div class="section-title">WebLLM (esm.sh - Browser-based)</div>
+                <div class="section-title">WebLLM (jsdelivr ESM +esm - Fixed)</div>
                 
                 <div class="info-box">
-                    ✅ WebLLM loaded from esm.sh CDN.<br>
+                    ✅ Using correct ESM format: `cdn.jsdelivr.net/npm/@mlc-ai/web-llm/+esm`<br>
                     ✅ 100% Free - No API key needed!<br>
                     ⚠️ First load downloads ~1.5-4GB (cached after).
                 </div>
@@ -385,7 +386,8 @@
                         <div class="message-text">
                             <p>👋 Selamat datang di MultiChat AI!</p>
                             <p><strong>OpenAI models</strong> (via Puter.js) - 100% Working!</p>
-                            <p><strong>WebLLM models</strong> (Gemma 2B, Llama 3 8B, Phi-3 Mini) - Now loaded from esm.sh CDN!</p>
+                            <p><strong>WebLLM models</strong> - Now using CORRECT ESM format from jsdelivr!</p>
+                            <p>✅ Import: `https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm/+esm`</p>
                             <p>✅ 100% Free - No API key needed!</p>
                         </div>
                     </div>
@@ -431,18 +433,18 @@
         setTimeout(() => {
             if (typeof webllm !== 'undefined') {
                 webllmAvailable = true;
-                console.log('✅ WebLLM loaded from esm.sh');
+                console.log('✅ WebLLM loaded from jsdelivr (+esm format)');
             } else {
-                console.log('❌ WebLLM not loaded');
+                console.log('❌ WebLLM not loaded - check console for errors');
             }
-        }, 2000);
+        }, 3000);
         
         // Model card selection
         document.querySelectorAll('.model-card').forEach(card => {
             card.addEventListener('click', function() {
                 // Check if WebLLM is selected but not available
                 if (this.dataset.type === 'webllm' && !webllmAvailable) {
-                    addMessage('system', '❌ WebLLM library not loaded from esm.sh. Please use OpenAI models (Puter.js).', 'system');
+                    addMessage('system', '❌ WebLLM library not loaded. Check browser console (F12) for errors.', 'system');
                     return;
                 }
                 
@@ -545,9 +547,9 @@
                     // Use Puter.js (OpenAI models)
                     response = await puter.ai.chat(message, { model: currentModel });
                 } else if (currentType === 'webllm') {
-                    // Use WebLLM (browser-based, from esm.sh)
+                    // Use WebLLM (browser-based, from jsdelivr +esm)
                     if (!webllmAvailable) {
-                        throw new Error('WebLLM library not loaded from esm.sh');
+                        throw new Error('WebLLM library not loaded from jsdelivr. Check console (F12).');
                     }
                     
                     loadingText.textContent = `🤔 Loading ${currentModelName} (first time: ~1.5-4GB download)...`;
