@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MultiChat AI - OpenRouter Style</title>
     <script src="https://js.puter.com/v2/"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.55/dist/webllm.js"></script>
     <style>
         * { margin:0; padding:0; box-sizing: border-box; }
         
@@ -21,7 +22,7 @@
             height: 100vh;
         }
         
-        /* Sidebar - Model List */
+        /* Sidebar */
         .sidebar {
             width: 320px;
             background: rgba(20, 20, 30, 0.95);
@@ -58,11 +59,6 @@
             font-size: 0.9rem;
             margin-bottom: 20px;
             outline: none;
-            transition: border-color 0.3s;
-        }
-        
-        .search-box:focus {
-            border-color: #7b68ee;
         }
         
         .model-section {
@@ -137,7 +133,12 @@
             flex-shrink: 0;
         }
         
-        /* Main Chat Area */
+        .model-badge.weblm {
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+        }
+        
+        /* Chat Area */
         .chat-area {
             flex: 1;
             display: flex;
@@ -255,7 +256,6 @@
             min-height: 50px;
             max-height: 150px;
             font-family: inherit;
-            transition: border-color 0.3s;
         }
         
         .chat-input:focus {
@@ -295,10 +295,6 @@
             display: block;
         }
         
-        .loading-dots {
-            display: inline-block;
-        }
-        
         .loading-dots::after {
             content: '';
             animation: dots 1.5s steps(4, end) infinite;
@@ -310,29 +306,36 @@
             60%, 100% { content: '...'; }
         }
         
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        
-        ::-webkit-scrollbar-thumb {
+        .progress-bar {
+            width: 100%;
+            height: 4px;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
+            border-radius: 2px;
+            margin-top: 10px;
+            overflow: hidden;
+            display: none;
         }
         
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.2);
+        .progress-bar.active {
+            display: block;
         }
         
-        /* Responsive */
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #7b68ee, #00d4ff);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+        
         @media (max-width: 768px) {
-            .sidebar {
-                display: none;
-            }
+            .sidebar { display: none; }
         }
     </style>
 </head>
@@ -342,45 +345,88 @@
         <div class="sidebar">
             <div class="sidebar-header">
                 <h1>🚀 MultiChat AI</h1>
-                <p>Puter.js OpenAI Models</p>
+                <p>Puter.js + WebLLM</p>
             </div>
             
             <input type="text" class="search-box" placeholder="Search models..." id="searchBox">
             
+            <!-- OpenAI Models (Puter.js) -->
             <div class="model-section">
-                <div class="section-title">OpenAI Models</div>
+                <div class="section-title">OpenAI (Puter.js)</div>
                 
-                <div class="model-card active" data-model="gpt-4o" data-icon="🤖" data-provider="OpenAI">
+                <div class="model-card active" data-model="gpt-4o" data-icon="🤖" data-provider="OpenAI" data-type="puter">
                     <div class="model-icon" style="background: rgba(0, 212, 255, 0.15);">🤖</div>
                     <div class="model-info">
                         <div class="model-name">GPT-4o</div>
-                        <div class="model-provider">OpenAI</div>
+                        <div class="model-provider">OpenAI via Puter.js</div>
                     </div>
                     <div class="model-badge">Active</div>
                 </div>
                 
-                <div class="model-card" data-model="gpt-4-turbo" data-icon="🧠" data-provider="OpenAI">
+                <div class="model-card" data-model="gpt-4-turbo" data-icon="🧠" data-provider="OpenAI" data-type="puter">
                     <div class="model-icon" style="background: rgba(123, 104, 238, 0.15);">🧠</div>
                     <div class="model-info">
                         <div class="model-name">GPT-4 Turbo</div>
-                        <div class="model-provider">OpenAI</div>
+                        <div class="model-provider">OpenAI via Puter.js</div>
                     </div>
                 </div>
                 
-                <div class="model-card" data-model="gpt-3.5-turbo" data-icon="⚡" data-provider="OpenAI">
+                <div class="model-card" data-model="gpt-3.5-turbo" data-icon="⚡" data-provider="OpenAI" data-type="puter">
                     <div class="model-icon" style="background: rgba(255, 107, 203, 0.15);">⚡</div>
                     <div class="model-info">
                         <div class="model-name">GPT-3.5 Turbo</div>
-                        <div class="model-provider">OpenAI</div>
+                        <div class="model-provider">OpenAI via Puter.js</div>
                     </div>
+                </div>
+            </div>
+            
+            <!-- Open-Source Models (WebLLM) -->
+            <div class="model-section">
+                <div class="section-title">Open-Source (WebLLM - Browser)</div>
+                
+                <div class="model-card" data-model="Llama-3-8B-Instruct-q4f32_1" data-icon="🦙" data-provider="Meta" data-type="webllm">
+                    <div class="model-icon" style="background: rgba(255, 107, 203, 0.15);">🦙</div>
+                    <div class="model-info">
+                        <div class="model-name">Llama 3 8B</div>
+                        <div class="model-provider">Meta (Browser-based)</div>
+                    </div>
+                    <div class="model-badge webllm">WebLLM</div>
+                </div>
+                
+                <div class="model-card" data-model="Mistral-7B-Instruct-v0.3-q4f16_1" data-icon="🌪️" data-provider="Mistral AI" data-type="webllm">
+                    <div class="model-icon" style="background: rgba(0, 212, 255, 0.15);">🌪️</div>
+                    <div class="model-info">
+                        <div class="model-name">Mistral 7B</div>
+                        <div class="model-provider">Mistral AI (Browser-based)</div>
+                    </div>
+                    <div class="model-badge webllm">WebLLM</div>
+                </div>
+                
+                <div class="model-card" data-model="Phi-3-mini-4k-instruct-q4f16_1" data-icon="💎" data-provider="Microsoft" data-type="webllm">
+                    <div class="model-icon" style="background: rgba(123, 104, 238, 0.15);">💎</div>
+                    <div class="model-info">
+                        <div class="model-name">Phi-3 Mini</div>
+                        <div class="model-provider">Microsoft (Browser-based)</div>
+                    </div>
+                    <div class="model-badge webllm">WebLLM</div>
+                </div>
+                
+                <div class="model-card" data-model="gemma-2b-it-q4f16_1" data-icon="🔮" data-provider="Google" data-type="webllm">
+                    <div class="model-icon" style="background: rgba(255, 107, 203, 0.15);">🔮</div>
+                    <div class="model-info">
+                        <div class="model-name">Gemma 2B</div>
+                        <div class="model-provider">Google (Browser-based)</div>
+                    </div>
+                    <div class="model-badge webllm">WebLLM</div>
                 </div>
             </div>
             
             <div class="model-section">
                 <div class="section-title">Info</div>
                 <div style="font-size: 0.8rem; color: #666; line-height: 1.5;">
-                    ⚠️ Puter.js hanya mendukung model OpenAI.<br>
-                    Model lain (Claude, Gemini) tidak tersedia.
+                    ⚠️ WebLLM models run in your browser.<br>
+                    First load downloads ~4-8GB (cached after).<br>
+                    No API key needed - 100% free!
                 </div>
             </div>
         </div>
@@ -392,7 +438,7 @@
                     <div class="chat-header-icon" id="headerIcon" style="background: rgba(0, 212, 255, 0.15);">🤖</div>
                     <div>
                         <div class="chat-header-name" id="headerName">GPT-4o</div>
-                        <div class="chat-header-provider" id="headerProvider">OpenAI</div>
+                        <div class="chat-header-provider" id="headerProvider">OpenAI via Puter.js</div>
                     </div>
                 </div>
             </div>
@@ -404,14 +450,17 @@
                         <div class="message-author">GPT-4o</div>
                         <div class="message-text">
                             <p>👋 Selamat datang di MultiChat AI!</p>
-                            <p>Silakan pilih model di sidebar dan mulai chat. Semua model yang tersedia adalah model OpenAI melalui Puter.js.</p>
+                            <p>Choose between <strong>OpenAI models</strong> (via Puter.js - server-side) or <strong>open-source models</strong> (via WebLLM - runs in your browser, 100% free, no API key needed).</p>
                         </div>
                     </div>
                 </div>
             </div>
             
             <div class="loading-indicator" id="loadingIndicator">
-                <span class="loading-dots">🤔 AI sedang berpikir</span>
+                <span class="loading-dots" id="loadingText">🤔 AI sedang berpikir</span>
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
             </div>
             
             <div class="chat-input-area">
@@ -428,11 +477,17 @@
         let currentIcon = '🤖';
         let currentProvider = 'OpenAI';
         let currentModelName = 'GPT-4o';
+        let currentType = 'puter'; // 'puter' or 'webllm'
+        let webllmEngine = null;
+        let isWebLLMReady = false;
         
         const chatMessages = document.getElementById('chatMessages');
         const chatInput = document.getElementById('chatInput');
         const sendBtn = document.getElementById('sendBtn');
         const loadingIndicator = document.getElementById('loadingIndicator');
+        const loadingText = document.getElementById('loadingText');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
         const searchBox = document.getElementById('searchBox');
         
         // Model card selection
@@ -444,40 +499,38 @@
                 });
                 this.classList.add('active');
                 
-                // Add active badge
                 const badge = document.createElement('div');
-                badge.className = 'model-badge';
-                badge.textContent = 'Active';
+                badge.className = 'model-badge' + (this.dataset.type === 'webllm' ? ' webllm' : '');
+                badge.textContent = this.dataset.type === 'webllm' ? 'WebLLM' : 'Active';
                 this.appendChild(badge);
                 
-                // Update current model
                 currentModel = this.dataset.model;
                 currentIcon = this.dataset.icon;
                 currentProvider = this.dataset.provider;
                 currentModelName = this.querySelector('.model-name').textContent;
+                currentType = this.dataset.type;
                 
-                // Update header
                 document.getElementById('headerIcon').textContent = currentIcon;
                 document.getElementById('headerIcon').style.background = this.querySelector('.model-icon').style.background;
                 document.getElementById('headerName').textContent = currentModelName;
-                document.getElementById('headerProvider').textContent = currentProvider;
+                document.getElementById('headerProvider').textContent = currentProvider + (currentType === 'webllm' ? ' (Browser-based)' : ' via Puter.js');
                 
-                // Add system message
-                addMessage('system', `✓ Model diganti ke ${currentModelName}`, 'system');
+                addMessage('system', `✓ Model changed to ${currentModelName}`, 'system');
+                
+                // If WebLLM, check if model needs to be loaded
+                if (currentType === 'webllm' && !isWebLLMReady) {
+                    addMessage('system', `⚠️ WebLLM model will download on first use (~4-8GB). This is cached for future use.`, 'system');
+                }
             });
         });
         
-        // Search functionality
+        // Search
         searchBox.addEventListener('input', function() {
             const query = this.value.toLowerCase();
             document.querySelectorAll('.model-card').forEach(card => {
                 const name = card.querySelector('.model-name').textContent.toLowerCase();
                 const provider = card.querySelector('.model-provider').textContent.toLowerCase();
-                if (name.includes(query) || provider.includes(query)) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
+                card.style.display = (name.includes(query) || provider.includes(query)) ? 'flex' : 'none';
             });
         });
         
@@ -487,7 +540,7 @@
             
             if (type === 'system') {
                 msgDiv.innerHTML = `
-                    <div class="message-content" style="text-align: center; color: #888; font-size: 0.85rem;">
+                    <div class="message-content" style="text-align: center; color: #888; font-size: 0.85rem; width: 100%;">
                         ${content}
                     </div>
                 `;
@@ -496,7 +549,7 @@
                     <div class="message-avatar" style="background: rgba(123, 104, 238, 0.15);">👤</div>
                     <div class="message-content">
                         <div class="message-author">You</div>
-                        <div class="message-text">${content}</div>
+                        <div class="message-text">${escapeHtml(content)}</div>
                     </div>
                 `;
             } else {
@@ -504,7 +557,7 @@
                     <div class="message-avatar" style="background: rgba(0, 212, 255, 0.15);">${currentIcon}</div>
                     <div class="message-content">
                         <div class="message-author">${currentModelName}</div>
-                        <div class="message-text">${content}</div>
+                        <div class="message-text">${escapeHtml(content)}</div>
                     </div>
                 `;
             }
@@ -517,27 +570,57 @@
             const message = chatInput.value.trim();
             if (!message) return;
             
-            // Add user message
-            addMessage('user', escapeHtml(message));
+            addMessage('user', message);
             chatInput.value = '';
             chatInput.style.height = 'auto';
             
-            // Disable input
             sendBtn.disabled = true;
             chatInput.disabled = true;
             loadingIndicator.classList.add('active');
+            loadingText.textContent = `🤔 ${currentModelName} sedang berpikir`;
             
             try {
-                // Call Puter.js AI
-                const response = await puter.ai.chat(message, { model: currentModel });
-                addMessage('ai', escapeHtml(response));
+                let response;
+                
+                if (currentType === 'puter') {
+                    // Use Puter.js (OpenAI models)
+                    response = await puter.ai.chat(message, { model: currentModel });
+                } else if (currentType === 'webllm') {
+                    // Use WebLLM (open-source models)
+                    loadingText.textContent = `🤔 Loading ${currentModelName}... (first time: download ~4-8GB)`;
+                    
+                    if (!webllmEngine) {
+                        webllmEngine = new webllm.MLCEngine();
+                        
+                        // Set up progress callback
+                        webllmEngine.setInitProgressCallback((report) => {
+                            progressBar.classList.add('active');
+                            const progress = (report.progress * 100).toFixed(0);
+                            progressFill.style.width = progress + '%';
+                            loadingText.textContent = `📥 Downloading ${currentModelName}: ${progress}%`;
+                        });
+                        
+                        await webllmEngine.reload(currentModel);
+                        isWebLLMReady = true;
+                        progressBar.classList.remove('active');
+                    }
+                    
+                    loadingText.textContent = `🤔 ${currentModelName} sedang berpikir...`;
+                    const reply = await webllmEngine.chat.completions.create({
+                        messages: [{ role: 'user', content: message }]
+                    });
+                    response = reply.choices[0].message.content;
+                }
+                
+                addMessage('ai', response);
             } catch (error) {
                 console.error('Error:', error);
-                addMessage('ai', `❌ Error: ${escapeHtml(error.message || 'Gagal memproses permintaan')}`);
+                addMessage('ai', `❌ Error: ${escapeHtml(error.message || 'Gagal memproses')}`);
             } finally {
                 sendBtn.disabled = false;
                 chatInput.disabled = false;
                 loadingIndicator.classList.remove('active');
+                progressBar.classList.remove('active');
                 chatInput.focus();
             }
         }
