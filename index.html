@@ -17,10 +17,7 @@
             align-items: center;
             padding: 20px;
         }
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+        .header { text-align: center; margin-bottom: 30px; }
         .header h1 {
             font-size: 2.5rem;
             background: linear-gradient(90deg, #60a5fa, #a78bfa);
@@ -53,10 +50,15 @@
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
+            font-size: 0.9rem;
         }
         .model-btn:hover, .model-btn.active {
             background: #3b82f6;
             color: white;
+        }
+        .model-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         .chat-box {
             height: 400px;
@@ -67,26 +69,16 @@
             margin-bottom: 20px;
             background: rgba(15, 23, 42, 0.5);
         }
-        .message {
-            margin-bottom: 15px;
-            padding: 12px 16px;
-            border-radius: 12px;
-            max-width: 80%;
-        }
+        .message { margin-bottom: 15px; padding: 12px 16px; border-radius: 12px; max-width: 80%; }
         .user-msg {
             background: linear-gradient(135deg, #3b82f6, #8b5cf6);
             margin-left: auto;
             color: white;
         }
-        .ai-msg {
-            background: rgba(30, 41, 59, 0.9);
-            border: 1px solid rgba(100, 116, 139, 0.3);
-        }
+        .ai-msg { background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(100, 116, 139, 0.3); }
         .ai-msg strong { color: #60a5fa; }
-        .input-area {
-            display: flex;
-            gap: 10px;
-        }
+        .error-msg { background: rgba(239, 68, 68, 0.2) !important; border-color: #ef4444 !important; }
+        .input-area { display: flex; gap: 10px; }
         .input-area input {
             flex: 1;
             padding: 14px 20px;
@@ -97,9 +89,7 @@
             font-size: 1rem;
             outline: none;
         }
-        .input-area input:focus {
-            border-color: #3b82f6;
-        }
+        .input-area input:focus { border-color: #3b82f6; }
         .input-area button {
             padding: 14px 30px;
             border: none;
@@ -110,38 +100,30 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-        .input-area button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
-        }
-        .input-area button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .loading {
-            display: none;
-            text-align: center;
-            color: #94a3b8;
-            margin-top: 10px;
-        }
+        .input-area button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4); }
+        .input-area button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .loading { display: none; text-align: center; color: #94a3b8; margin-top: 10px; }
         .loading.active { display: block; }
+        .status { text-align: center; color: #94a3b8; font-size: 0.9rem; margin-top: 10px; }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>🤖 MultiChat AI</h1>
-        <p>Powered by Puter.js - Multiple AI Models</p>
+        <p>✨ Powered by Puter.js - Chat with Multiple AI Models</p>
     </div>
     <div class="container">
         <div class="model-selector">
-            <button class="model-btn active" data-model="gpt-4o">GPT-4o</button>
-            <button class="model-btn" data-model="gpt-4-turbo">GPT-4 Turbo</button>
-            <button class="model-btn" data-model="claude-3-opus">Claude 3 Opus</button>
-            <button class="model-btn" data-model="claude-3-sonnet">Claude 3 Sonnet</button>
-            <button class="model-btn" data-model="gemini-pro">Gemini Pro</button>
+            <button class="model-btn active" data-model="gpt-4o" data-display="GPT-4o">GPT-4o</button>
+            <button class="model-btn" data-model="gpt-4-turbo" data-display="GPT-4 Turbo">GPT-4 Turbo</button>
+            <button class="model-btn" data-model="claude-3-opus-20240229" data-display="Claude 3 Opus">Claude 3 Opus</button>
+            <button class="model-btn" data-model="claude-3-sonnet-20240229" data-display="Claude 3 Sonnet">Claude 3 Sonnet</button>
+            <button class="model-btn" data-model="gemini-pro" data-display="Gemini Pro">Gemini Pro</button>
+            <button class="model-btn" data-model="gpt-3.5-turbo" data-display="GPT-3.5 Turbo">GPT-3.5 Turbo</button>
         </div>
         <div class="chat-box" id="chatBox"></div>
         <div class="loading" id="loading">⏳ AI sedang memproses...</div>
+        <div class="status" id="status"></div>
         <div class="input-area">
             <input type="text" id="userInput" placeholder="Tulis pesan anda..." onkeypress="if(event.key==='Enter') sendMessage()">
             <button onclick="sendMessage()" id="sendBtn">Kirim</button>
@@ -150,10 +132,12 @@
 
     <script>
         let currentModel = 'gpt-4o';
+        let currentModelDisplay = 'GPT-4o';
         const chatBox = document.getElementById('chatBox');
         const userInput = document.getElementById('userInput');
         const sendBtn = document.getElementById('sendBtn');
         const loading = document.getElementById('loading');
+        const status = document.getElementById('status');
 
         // Model selector
         document.querySelectorAll('.model-btn').forEach(btn => {
@@ -161,17 +145,20 @@
                 document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 currentModel = this.dataset.model;
-                addMessage('system', `📌 Model diganti ke: ${currentModel}`);
+                currentModelDisplay = this.dataset.display;
+                status.textContent = `✓ Model diganti ke: ${currentModelDisplay}`;
+                setTimeout(() => status.textContent = '', 3000);
             });
         });
 
-        function addMessage(role, content) {
+        function addMessage(role, content, isError = false) {
             const msgDiv = document.createElement('div');
             msgDiv.className = `message ${role === 'user' ? 'user-msg' : 'ai-msg'}`;
+            if (isError) msgDiv.classList.add('error-msg');
             if (role === 'user') {
                 msgDiv.textContent = content;
             } else {
-                msgDiv.innerHTML = `<strong>${currentModel}:</strong> ${content}`;
+                msgDiv.innerHTML = `<strong>${currentModelDisplay}:</strong> ${content}`;
             }
             chatBox.appendChild(msgDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
@@ -181,31 +168,34 @@
             const message = userInput.value.trim();
             if (!message) return;
 
-            // Add user message
             addMessage('user', message);
             userInput.value = '';
-            
-            // Disable input
             sendBtn.disabled = true;
             userInput.disabled = true;
             loading.classList.add('active');
 
             try {
-                // Call Puter.js AI
+                status.textContent = `🤔 ${currentModelDisplay} sedang berpikir...`;
                 const response = await puter.ai.chat(message, { model: currentModel });
                 addMessage('ai', response);
+                status.textContent = `✓ Balasan dari ${currentModelDisplay}`;
             } catch (error) {
-                addMessage('ai', `❌ Error: ${error.message || 'Gagal memproses permintaan'}`);
+                console.error('Error:', error);
+                const errorMsg = error.message || 'Gagal memproses permintaan';
+                addMessage('ai', `❌ Error: ${errorMsg}<br><small>Model mungkin tidak tersedia di Puter.js</small>`, true);
+                status.textContent = `❌ Error dengan ${currentModelDisplay}`;
             } finally {
                 sendBtn.disabled = false;
                 userInput.disabled = false;
                 loading.classList.remove('active');
                 userInput.focus();
+                setTimeout(() => status.textContent = '', 5000);
             }
         }
 
         // Init
-        addMessage('system', '👋 Selamat datang di MultiChat AI! Pilih model dan mulai chat.');
+        addMessage('system', '👋 Selamat datang di MultiChat AI!<br>Pilih model dan mulai chat. Jika model error, coba model lain.');
+        status.textContent = 'Ready - Silakan pilih model dan mulai chat';
     </script>
 </body>
 </html>
