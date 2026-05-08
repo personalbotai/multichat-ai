@@ -428,22 +428,11 @@
         const progressFill = document.getElementById('progressFill');
         const searchBox = document.getElementById('searchBox');
         
-        // Check if WebLLM is loaded
-        let webllmAvailable = false;
-        setTimeout(() => {
-            if (typeof webllm !== 'undefined') {
-                webllmAvailable = true;
-                console.log('✅ WebLLM loaded from jsdelivr (+esm format)');
-            } else {
-                console.log('❌ WebLLM not loaded - check console for errors');
-            }
-        }, 3000);
-        
         // Model card selection
         document.querySelectorAll('.model-card').forEach(card => {
             card.addEventListener('click', function() {
                 // Check if WebLLM is selected but not available
-                if (this.dataset.type === 'webllm' && !webllmAvailable) {
+                if (this.dataset.type === 'webllm' && typeof window.webllm === 'undefined') {
                     addMessage('system', '❌ WebLLM library not loaded. Check browser console (F12) for errors.', 'system');
                     return;
                 }
