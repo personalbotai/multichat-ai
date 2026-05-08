@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MultiChat AI - Puter.js</title>
+    <script src="https://js.puter.com/v2/"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .header p { color: #94a3b8; }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+        }
+        .model-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .model-btn {
+            padding: 10px 20px;
+            border: 2px solid #3b82f6;
+            background: transparent;
+            color: #3b82f6;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .model-btn:hover, .model-btn.active {
+            background: #3b82f6;
+            color: white;
+        }
+        .chat-box {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: rgba(15, 23, 42, 0.5);
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 80%;
+        }
+        .user-msg {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            margin-left: auto;
+            color: white;
+        }
+        .ai-msg {
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+        }
+        .ai-msg strong { color: #60a5fa; }
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+        .input-area input {
+            flex: 1;
+            padding: 14px 20px;
+            border: 2px solid rgba(100, 116, 139, 0.3);
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.6);
+            color: #f8fafc;
+            font-size: 1rem;
+            outline: none;
+        }
+        .input-area input:focus {
+            border-color: #3b82f6;
+        }
+        .input-area button {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .input-area button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+        .input-area button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            color: #94a3b8;
+            margin-top: 10px;
+        }
+        .loading.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🤖 MultiChat AI</h1>
+        <p>Powered by Puter.js - Multiple AI Models</p>
+    </div>
+    <div class="container">
+        <div class="model-selector">
+            <button class="model-btn active" data-model="gpt-4o">GPT-4o</button>
+            <button class="model-btn" data-model="gpt-4-turbo">GPT-4 Turbo</button>
+            <button class="model-btn" data-model="claude-3-opus">Claude 3 Opus</button>
+            <button class="model-btn" data-model="claude-3-sonnet">Claude 3 Sonnet</button>
+            <button class="model-btn" data-model="gemini-pro">Gemini Pro</button>
+        </div>
+        <div class="chat-box" id="chatBox"></div>
+        <div class="loading" id="loading">⏳ AI sedang memproses...</div>
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Tulis pesan anda..." onkeypress="if(event.key==='Enter') sendMessage()">
+            <button onclick="sendMessage()" id="sendBtn">Kirim</button>
+        </div>
+    </div>
+
+    <script>
+        let currentModel = 'gpt-4o';
+        const chatBox = document.getElementById('chatBox');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const loading = document.getElementById('loading');
+
+        // Model selector
+        document.querySelectorAll('.model-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentModel = this.dataset.model;
+                addMessage('system', `📌 Model diganti ke: ${currentModel}`);
+            });
+        });
+
+        function addMessage(role, content) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${role === 'user' ? 'user-msg' : 'ai-msg'}`;
+            if (role === 'user') {
+                msgDiv.textContent = content;
+            } else {
+                msgDiv.innerHTML = `<strong>${currentModel}:</strong> ${content}`;
+            }
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            // Add user message
+            addMessage('user', message);
+            userInput.value = '';
+            
+            // Disable input
+            sendBtn.disabled = true;
+            userInput.disabled = true;
+            loading.classList.add('active');
+
+            try {
+                // Call Puter.js AI
+                const response = await puter.ai.chat(message, { model: currentModel });
+                addMessage('ai', response);
+            } catch (error) {
+                addMessage('ai', `❌ Error: ${error.message || 'Gagal memproses permintaan'}`);
+            } finally {
+                sendBtn.disabled = false;
+                userInput.disabled = false;
+                loading.classList.remove('active');
+                userInput.focus();
+            }
+        }
+
+        // Init
+        addMessage('system', '👋 Selamat datang di MultiChat AI! Pilih model dan mulai chat.');
+    </script>
+</body>
+</html>
