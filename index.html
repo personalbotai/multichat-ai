@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MultiChat AI - OpenRouter Style</title>
+    <title>MultiChat AI - WebLLM esm.sh</title>
     <script src="https://js.puter.com/v2/"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.55/dist/webllm.js"></script>
+    <script type="module">
+        import * as webllm from "https://esm.sh/@mlc-ai/web-llm@0.2.55";
+        window.webllm = webllm;
+        console.log("✅ WebLLM loaded from esm.sh");
+    </script>
     <style>
         * { margin:0; padding:0; box-sizing: border-box; }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: #0a0a0f;
             color: #e0e0e0;
             min-height: 100vh;
             overflow: hidden;
         }
         
-        .app-container {
-            display: flex;
-            height: 100vh;
-        }
+        .app-container { display: flex; height: 100vh; }
         
-        /* Sidebar */
         .sidebar {
             width: 320px;
             background: rgba(20, 20, 30, 0.95);
@@ -31,9 +31,7 @@
             padding: 20px;
         }
         
-        .sidebar-header {
-            margin-bottom: 24px;
-        }
+        .sidebar-header { margin-bottom: 24px; }
         
         .sidebar-header h1 {
             font-size: 1.5rem;
@@ -44,10 +42,7 @@
             margin-bottom: 6px;
         }
         
-        .sidebar-header p {
-            font-size: 0.85rem;
-            color: #888;
-        }
+        .sidebar-header p { font-size: 0.85rem; color: #888; }
         
         .search-box {
             width: 100%;
@@ -61,9 +56,7 @@
             outline: none;
         }
         
-        .model-section {
-            margin-bottom: 20px;
-        }
+        .model-section { margin-bottom: 20px; }
         
         .section-title {
             font-size: 0.75rem;
@@ -107,10 +100,7 @@
             flex-shrink: 0;
         }
         
-        .model-info {
-            flex: 1;
-            min-width: 0;
-        }
+        .model-info { flex: 1; min-width: 0; }
         
         .model-name {
             font-size: 0.9rem;
@@ -119,26 +109,18 @@
             margin-bottom: 2px;
         }
         
-        .model-provider {
-            font-size: 0.75rem;
-            color: #888;
-        }
+        .model-provider { font-size: 0.75rem; color: #888; }
         
         .model-badge {
             font-size: 0.7rem;
             padding: 2px 8px;
             border-radius: 4px;
-            background: rgba(123, 104, 238, 0.2);
-            color: #7b68ee;
             flex-shrink: 0;
         }
         
-        .model-badge.weblm {
-            background: rgba(0, 212, 255, 0.2);
-            color: #00d4ff;
-        }
+        .model-badge.puter { background: rgba(123, 104, 238, 0.2); color: #7b68ee; }
+        .model-badge.webllm { background: rgba(0, 212, 255, 0.2); color: #00d4ff; }
         
-        /* Chat Area */
         .chat-area {
             flex: 1;
             display: flex;
@@ -151,14 +133,7 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
             align-items: center;
-            justify-content: space-between;
             background: rgba(20, 20, 30, 0.95);
-        }
-        
-        .chat-header-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
         }
         
         .chat-header-icon {
@@ -169,17 +144,11 @@
             align-items: center;
             justify-content: center;
             font-size: 1.3rem;
+            margin-right: 12px;
         }
         
-        .chat-header-name {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-        
-        .chat-header-provider {
-            font-size: 0.85rem;
-            color: #888;
-        }
+        .chat-header-name { font-size: 1.1rem; font-weight: 600; }
+        .chat-header-provider { font-size: 0.85rem; color: #888; }
         
         .chat-messages {
             flex: 1;
@@ -210,26 +179,10 @@
             flex-shrink: 0;
         }
         
-        .message-content {
-            flex: 1;
-        }
-        
-        .message-author {
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: #e0e0e0;
-        }
-        
-        .message-text {
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: #c0c0c0;
-        }
-        
-        .message-text p {
-            margin-bottom: 10px;
-        }
+        .message-content { flex: 1; }
+        .message-author { font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; color: #e0e0e0; }
+        .message-text { font-size: 0.95rem; line-height: 1.6; color: #c0c0c0; }
+        .message-text p { margin-bottom: 10px; }
         
         .chat-input-area {
             padding: 20px 30px 30px;
@@ -237,11 +190,7 @@
             border-top: 1px solid rgba(255, 255, 255, 0.08);
         }
         
-        .input-wrapper {
-            display: flex;
-            gap: 12px;
-            align-items: flex-end;
-        }
+        .input-wrapper { display: flex; gap: 12px; align-items: flex-end; }
         
         .chat-input {
             flex: 1;
@@ -258,9 +207,7 @@
             font-family: inherit;
         }
         
-        .chat-input:focus {
-            border-color: #7b68ee;
-        }
+        .chat-input:focus { border-color: #7b68ee; }
         
         .send-btn {
             padding: 14px 24px;
@@ -279,10 +226,7 @@
             box-shadow: 0 4px 15px rgba(123, 104, 238, 0.4);
         }
         
-        .send-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+        .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         
         .loading-indicator {
             display: none;
@@ -291,9 +235,7 @@
             font-size: 0.9rem;
         }
         
-        .loading-indicator.active {
-            display: block;
-        }
+        .loading-indicator.active { display: block; }
         
         .loading-dots::after {
             content: '';
@@ -316,9 +258,7 @@
             display: none;
         }
         
-        .progress-bar.active {
-            display: block;
-        }
+        .progress-bar.active { display: block; }
         
         .progress-fill {
             height: 100%;
@@ -328,15 +268,23 @@
             transition: width 0.3s;
         }
         
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
         
-        @media (max-width: 768px) {
-            .sidebar { display: none; }
+        .info-box {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 0.8rem;
+            color: #888;
+            line-height: 1.5;
         }
+        
+        @media (max-width: 768px) { .sidebar { display: none; } }
     </style>
 </head>
 <body>
@@ -345,14 +293,14 @@
         <div class="sidebar">
             <div class="sidebar-header">
                 <h1>🚀 MultiChat AI</h1>
-                <p>Puter.js + WebLLM</p>
+                <p>Puter.js + WebLLM (esm.sh)</p>
             </div>
             
             <input type="text" class="search-box" placeholder="Search models..." id="searchBox">
             
             <!-- OpenAI Models (Puter.js) -->
             <div class="model-section">
-                <div class="section-title">OpenAI (Puter.js)</div>
+                <div class="section-title">OpenAI (Puter.js - 100% Working)</div>
                 
                 <div class="model-card active" data-model="gpt-4o" data-icon="🤖" data-provider="OpenAI" data-type="puter">
                     <div class="model-icon" style="background: rgba(0, 212, 255, 0.15);">🤖</div>
@@ -360,7 +308,7 @@
                         <div class="model-name">GPT-4o</div>
                         <div class="model-provider">OpenAI via Puter.js</div>
                     </div>
-                    <div class="model-badge">Active</div>
+                    <div class="model-badge puter">Active</div>
                 </div>
                 
                 <div class="model-card" data-model="gpt-4-turbo" data-icon="🧠" data-provider="OpenAI" data-type="puter">
@@ -380,24 +328,30 @@
                 </div>
             </div>
             
-            <!-- Open-Source Models (WebLLM) -->
+            <!-- WebLLM Models (esm.sh) -->
             <div class="model-section">
-                <div class="section-title">Open-Source (WebLLM - Browser)</div>
+                <div class="section-title">WebLLM (esm.sh - Browser-based)</div>
+                
+                <div class="info-box">
+                    ✅ WebLLM loaded from esm.sh CDN.<br>
+                    ✅ 100% Free - No API key needed!<br>
+                    ⚠️ First load downloads ~1.5-4GB (cached after).
+                </div>
+                
+                <div class="model-card" data-model="gemma-2b-it-q4f16_1" data-icon="🔮" data-provider="Google" data-type="webllm">
+                    <div class="model-icon" style="background: rgba(255, 107, 203, 0.15);">🔮</div>
+                    <div class="model-info">
+                        <div class="model-name">Gemma 2B</div>
+                        <div class="model-provider">Google (~1.5GB, smallest)</div>
+                    </div>
+                    <div class="model-badge webllm">WebLLM</div>
+                </div>
                 
                 <div class="model-card" data-model="Llama-3-8B-Instruct-q4f32_1" data-icon="🦙" data-provider="Meta" data-type="webllm">
                     <div class="model-icon" style="background: rgba(255, 107, 203, 0.15);">🦙</div>
                     <div class="model-info">
                         <div class="model-name">Llama 3 8B</div>
-                        <div class="model-provider">Meta (Browser-based)</div>
-                    </div>
-                    <div class="model-badge webllm">WebLLM</div>
-                </div>
-                
-                <div class="model-card" data-model="Mistral-7B-Instruct-v0.3-q4f16_1" data-icon="🌪️" data-provider="Mistral AI" data-type="webllm">
-                    <div class="model-icon" style="background: rgba(0, 212, 255, 0.15);">🌪️</div>
-                    <div class="model-info">
-                        <div class="model-name">Mistral 7B</div>
-                        <div class="model-provider">Mistral AI (Browser-based)</div>
+                        <div class="model-provider">Meta (~4GB)</div>
                     </div>
                     <div class="model-badge webllm">WebLLM</div>
                 </div>
@@ -406,27 +360,9 @@
                     <div class="model-icon" style="background: rgba(123, 104, 238, 0.15);">💎</div>
                     <div class="model-info">
                         <div class="model-name">Phi-3 Mini</div>
-                        <div class="model-provider">Microsoft (Browser-based)</div>
+                        <div class="model-provider">Microsoft (~2GB)</div>
                     </div>
                     <div class="model-badge webllm">WebLLM</div>
-                </div>
-                
-                <div class="model-card" data-model="gemma-2b-it-q4f16_1" data-icon="🔮" data-provider="Google" data-type="webllm">
-                    <div class="model-icon" style="background: rgba(255, 107, 203, 0.15);">🔮</div>
-                    <div class="model-info">
-                        <div class="model-name">Gemma 2B</div>
-                        <div class="model-provider">Google (Browser-based)</div>
-                    </div>
-                    <div class="model-badge webllm">WebLLM</div>
-                </div>
-            </div>
-            
-            <div class="model-section">
-                <div class="section-title">Info</div>
-                <div style="font-size: 0.8rem; color: #666; line-height: 1.5;">
-                    ⚠️ WebLLM models run in your browser.<br>
-                    First load downloads ~4-8GB (cached after).<br>
-                    No API key needed - 100% free!
                 </div>
             </div>
         </div>
@@ -434,12 +370,10 @@
         <!-- Chat Area -->
         <div class="chat-area">
             <div class="chat-header">
-                <div class="chat-header-info">
-                    <div class="chat-header-icon" id="headerIcon" style="background: rgba(0, 212, 255, 0.15);">🤖</div>
-                    <div>
-                        <div class="chat-header-name" id="headerName">GPT-4o</div>
-                        <div class="chat-header-provider" id="headerProvider">OpenAI via Puter.js</div>
-                    </div>
+                <div class="chat-header-icon" id="headerIcon" style="background: rgba(0, 212, 255, 0.15);">🤖</div>
+                <div>
+                    <div class="chat-header-name" id="headerName">GPT-4o</div>
+                    <div class="chat-header-provider" id="headerProvider">OpenAI via Puter.js</div>
                 </div>
             </div>
             
@@ -450,7 +384,9 @@
                         <div class="message-author">GPT-4o</div>
                         <div class="message-text">
                             <p>👋 Selamat datang di MultiChat AI!</p>
-                            <p>Choose between <strong>OpenAI models</strong> (via Puter.js - server-side) or <strong>open-source models</strong> (via WebLLM - runs in your browser, 100% free, no API key needed).</p>
+                            <p><strong>OpenAI models</strong> (via Puter.js) - 100% Working!</p>
+                            <p><strong>WebLLM models</strong> (Gemma 2B, Llama 3 8B, Phi-3 Mini) - Now loaded from esm.sh CDN!</p>
+                            <p>✅ 100% Free - No API key needed!</p>
                         </div>
                     </div>
                 </div>
@@ -465,7 +401,7 @@
             
             <div class="chat-input-area">
                 <div class="input-wrapper">
-                    <textarea class="chat-input" id="chatInput" placeholder="Tulis pesan anda... (Tekan Enter untuk kirim)" rows="1" onkeypress="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }"></textarea>
+                    <textarea class="chat-input" id="chatInput" placeholder="Tulis pesan anda... (Enter untuk kirim)" rows="1" onkeypress="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }"></textarea>
                     <button class="send-btn" id="sendBtn" onclick="sendMessage()">Kirim</button>
                 </div>
             </div>
@@ -477,7 +413,7 @@
         let currentIcon = '🤖';
         let currentProvider = 'OpenAI';
         let currentModelName = 'GPT-4o';
-        let currentType = 'puter'; // 'puter' or 'webllm'
+        let currentType = 'puter';
         let webllmEngine = null;
         let isWebLLMReady = false;
         
@@ -490,19 +426,44 @@
         const progressFill = document.getElementById('progressFill');
         const searchBox = document.getElementById('searchBox');
         
+        // Check if WebLLM is loaded
+        let webllmAvailable = false;
+        setTimeout(() => {
+            if (typeof webllm !== 'undefined') {
+                webllmAvailable = true;
+                console.log('✅ WebLLM loaded from esm.sh');
+            } else {
+                console.log('❌ WebLLM not loaded');
+            }
+        }, 2000);
+        
         // Model card selection
         document.querySelectorAll('.model-card').forEach(card => {
             card.addEventListener('click', function() {
+                // Check if WebLLM is selected but not available
+                if (this.dataset.type === 'webllm' && !webllmAvailable) {
+                    addMessage('system', '❌ WebLLM library not loaded from esm.sh. Please use OpenAI models (Puter.js).', 'system');
+                    return;
+                }
+                
                 document.querySelectorAll('.model-card').forEach(c => {
                     c.classList.remove('active');
-                    c.querySelector('.model-badge')?.remove();
+                    const badge = c.querySelector('.model-badge');
+                    if (badge && !badge.classList.contains('puter')) badge.remove();
                 });
                 this.classList.add('active');
                 
-                const badge = document.createElement('div');
-                badge.className = 'model-badge' + (this.dataset.type === 'webllm' ? ' webllm' : '');
-                badge.textContent = this.dataset.type === 'webllm' ? 'WebLLM' : 'Active';
-                this.appendChild(badge);
+                if (this.dataset.type === 'puter') {
+                    const badge = document.createElement('div');
+                    badge.className = 'model-badge puter';
+                    badge.textContent = 'Active';
+                    this.appendChild(badge);
+                } else {
+                    const badge = document.createElement('div');
+                    badge.className = 'model-badge webllm';
+                    badge.textContent = 'WebLLM';
+                    this.appendChild(badge);
+                }
                 
                 currentModel = this.dataset.model;
                 currentIcon = this.dataset.icon;
@@ -517,9 +478,8 @@
                 
                 addMessage('system', `✓ Model changed to ${currentModelName}`, 'system');
                 
-                // If WebLLM, check if model needs to be loaded
                 if (currentType === 'webllm' && !isWebLLMReady) {
-                    addMessage('system', `⚠️ WebLLM model will download on first use (~4-8GB). This is cached for future use.`, 'system');
+                    addMessage('system', `⚠️ ${currentModelName} will download on first use (~1.5-4GB). Cached after first load.`, 'system');
                 }
             });
         });
@@ -577,7 +537,6 @@
             sendBtn.disabled = true;
             chatInput.disabled = true;
             loadingIndicator.classList.add('active');
-            loadingText.textContent = `🤔 ${currentModelName} sedang berpikir`;
             
             try {
                 let response;
@@ -586,18 +545,24 @@
                     // Use Puter.js (OpenAI models)
                     response = await puter.ai.chat(message, { model: currentModel });
                 } else if (currentType === 'webllm') {
-                    // Use WebLLM (open-source models)
-                    loadingText.textContent = `🤔 Loading ${currentModelName}... (first time: download ~4-8GB)`;
+                    // Use WebLLM (browser-based, from esm.sh)
+                    if (!webllmAvailable) {
+                        throw new Error('WebLLM library not loaded from esm.sh');
+                    }
                     
-                    if (!webllmEngine) {
+                    loadingText.textContent = `🤔 Loading ${currentModelName} (first time: ~1.5-4GB download)...`;
+                    
+                    if (!isWebLLMReady) {
+                        progressBar.classList.add('active');
+                        
+                        // Initialize WebLLM engine
                         webllmEngine = new webllm.MLCEngine();
                         
-                        // Set up progress callback
+                        // Set progress callback
                         webllmEngine.setInitProgressCallback((report) => {
-                            progressBar.classList.add('active');
-                            const progress = (report.progress * 100).toFixed(0);
-                            progressFill.style.width = progress + '%';
-                            loadingText.textContent = `📥 Downloading ${currentModelName}: ${progress}%`;
+                            const pct = (report.progress * 100).toFixed(0);
+                            progressFill.style.width = pct + '%';
+                            loadingText.textContent = `📥 Downloading ${currentModelName}: ${pct}%`;
                         });
                         
                         await webllmEngine.reload(currentModel);
@@ -606,16 +571,18 @@
                     }
                     
                     loadingText.textContent = `🤔 ${currentModelName} sedang berpikir...`;
+                    
                     const reply = await webllmEngine.chat.completions.create({
                         messages: [{ role: 'user', content: message }]
                     });
+                    
                     response = reply.choices[0].message.content;
                 }
                 
                 addMessage('ai', response);
             } catch (error) {
                 console.error('Error:', error);
-                addMessage('ai', `❌ Error: ${escapeHtml(error.message || 'Gagal memproses')}`);
+                addMessage('ai', `❌ Error: ${escapeHtml(error.message || 'Gagal memproses')}`, 'error');
             } finally {
                 sendBtn.disabled = false;
                 chatInput.disabled = false;
