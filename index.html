@@ -25,7 +25,7 @@
             -webkit-text-fill-color: transparent;
             margin-bottom: 10px;
         }
-        .header p { color: #94a3b8; }
+        .header p { color: #94a3b8; font-size: 0.9rem; }
         .container {
             width: 100%;
             max-width: 800px;
@@ -34,6 +34,15 @@
             border-radius: 20px;
             padding: 30px;
             border: 1px solid rgba(100, 116, 139, 0.3);
+        }
+        .info-box {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #94a3b8;
         }
         .model-selector {
             display: flex;
@@ -55,10 +64,6 @@
         .model-btn:hover, .model-btn.active {
             background: #3b82f6;
             color: white;
-        }
-        .model-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
         }
         .chat-box {
             height: 400px;
@@ -110,16 +115,17 @@
 <body>
     <div class="header">
         <h1>🤖 MultiChat AI</h1>
-        <p>✨ Powered by Puter.js - Chat with Multiple AI Models</p>
+        <p>✨ Powered by Puter.js - OpenAI Models Only</p>
     </div>
     <div class="container">
+        <div class="info-box">
+            ⚠️ <strong>Info:</strong> Puter.js saat ini hanya mendukung model OpenAI (GPT series). 
+            Model Claude & Gemini tidak tersedia melalui puter.ai.chat().
+        </div>
         <div class="model-selector">
-            <button class="model-btn active" data-model="gpt-4o" data-display="GPT-4o">GPT-4o</button>
-            <button class="model-btn" data-model="gpt-4-turbo" data-display="GPT-4 Turbo">GPT-4 Turbo</button>
-            <button class="model-btn" data-model="claude-3-opus-20240229" data-display="Claude 3 Opus">Claude 3 Opus</button>
-            <button class="model-btn" data-model="claude-3-sonnet-20240229" data-display="Claude 3 Sonnet">Claude 3 Sonnet</button>
-            <button class="model-btn" data-model="gemini-pro" data-display="Gemini Pro">Gemini Pro</button>
-            <button class="model-btn" data-model="gpt-3.5-turbo" data-display="GPT-3.5 Turbo">GPT-3.5 Turbo</button>
+            <button class="model-btn active" data-model="gpt-4o">GPT-4o</button>
+            <button class="model-btn" data-model="gpt-4-turbo">GPT-4 Turbo</button>
+            <button class="model-btn" data-model="gpt-3.5-turbo">GPT-3.5 Turbo</button>
         </div>
         <div class="chat-box" id="chatBox"></div>
         <div class="loading" id="loading">⏳ AI sedang memproses...</div>
@@ -145,7 +151,7 @@
                 document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 currentModel = this.dataset.model;
-                currentModelDisplay = this.dataset.display;
+                currentModelDisplay = this.textContent;
                 status.textContent = `✓ Model diganti ke: ${currentModelDisplay}`;
                 setTimeout(() => status.textContent = '', 3000);
             });
@@ -176,13 +182,14 @@
 
             try {
                 status.textContent = `🤔 ${currentModelDisplay} sedang berpikir...`;
+                // Puter.js only supports OpenAI models
                 const response = await puter.ai.chat(message, { model: currentModel });
                 addMessage('ai', response);
                 status.textContent = `✓ Balasan dari ${currentModelDisplay}`;
             } catch (error) {
                 console.error('Error:', error);
                 const errorMsg = error.message || 'Gagal memproses permintaan';
-                addMessage('ai', `❌ Error: ${errorMsg}<br><small>Model mungkin tidak tersedia di Puter.js</small>`, true);
+                addMessage('ai', `❌ Error: ${errorMsg}`, true);
                 status.textContent = `❌ Error dengan ${currentModelDisplay}`;
             } finally {
                 sendBtn.disabled = false;
@@ -194,8 +201,8 @@
         }
 
         // Init
-        addMessage('system', '👋 Selamat datang di MultiChat AI!<br>Pilih model dan mulai chat. Jika model error, coba model lain.');
-        status.textContent = 'Ready - Silakan pilih model dan mulai chat';
+        addMessage('system', '👋 Selamat datang di MultiChat AI!<br>Hanya model <strong>OpenAI (GPT)</strong> yang tersedia melalui Puter.js.<br>Pilih model dan mulai chat!');
+        status.textContent = 'Ready - Silakan pilih model GPT dan mulai chat';
     </script>
 </body>
 </html>
