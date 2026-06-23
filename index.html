@@ -537,7 +537,7 @@
                     response = await puter.ai.chat(message, { model: currentModel });
                 } else if (currentType === 'webllm') {
                     // Use WebLLM (browser-based, from jsdelivr +esm)
-                    if (!webllmAvailable) {
+                    if (typeof window.webllm === 'undefined') {
                         throw new Error('WebLLM library not loaded from jsdelivr. Check console (F12).');
                     }
                     
